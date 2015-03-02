@@ -350,10 +350,12 @@
         </closure-compiler>
 
         <jar jarfile="${kotlin-home}/lib/kotlin-jslib.jar" duplicate="fail">
-            <resources refid="js.lib.files" />
             <zipfileset file="${kotlin-home}/build.txt" prefix="META-INF"/>
             <zipfileset file="${output}/kotlin.js" prefix=""/>
             <zipfileset file="${output}/${compiled.stdlib.meta.js}" prefix=""/>
+            <fileset id="kotlin.meta.files" dir="${output}">
+                <include name="stdlib/**/*"/>
+                </fileset>
 
             <manifest>
                 <attribute name="Built-By" value="${manifest.impl.vendor}"/>
