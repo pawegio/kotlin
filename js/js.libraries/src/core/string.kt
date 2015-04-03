@@ -25,14 +25,6 @@ public fun String.splitWithRegex(regex: String): Array<String> = noImpl
 library("splitString")
 public fun String.splitWithRegex(regex: String, limit: Int): Array<String> = noImpl
 
-deprecated("Use splitWithRegex (temporary)")
-library("splitString")
-public fun String.split(regex: String): Array<String> = noImpl
-
-deprecated("Use splitWithRegex (temporary)")
-library("splitString")
-public fun String.split(regex: String, limit: Int): Array<String> = noImpl
-
 
 native public fun String.substring(beginIndex : Int) : String = noImpl
 native public fun String.substring(beginIndex : Int, endIndex : Int) : String = noImpl
