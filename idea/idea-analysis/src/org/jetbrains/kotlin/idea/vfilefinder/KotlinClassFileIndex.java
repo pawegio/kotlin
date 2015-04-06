@@ -22,6 +22,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.idea.decompiler.KotlinJavascriptMetaFileType;
+import org.jetbrains.kotlin.idea.decompiler.navigation.JsMetaFileUtils;
 import org.jetbrains.kotlin.load.kotlin.KotlinBinaryClassCache;
 import org.jetbrains.kotlin.load.kotlin.KotlinJvmBinaryClass;
 import org.jetbrains.kotlin.name.FqName;
@@ -63,7 +65,7 @@ public final class KotlinClassFileIndex extends ScalarIndexExtension<FqName> {
     private static final FileBasedIndex.InputFilter INPUT_FILTER = new FileBasedIndex.InputFilter() {
         @Override
         public boolean acceptInput(@NotNull VirtualFile file) {
-            return file.getFileType() == JavaClassFileType.INSTANCE;
+            return file.getFileType() == JavaClassFileType.INSTANCE || file.getFileType() == KotlinJavascriptMetaFileType.INSTANCE;
         }
     };
     public static final DataIndexer<FqName, Void, FileContent> INDEXER = new DataIndexer<FqName, Void, FileContent>() {
@@ -71,9 +73,17 @@ public final class KotlinClassFileIndex extends ScalarIndexExtension<FqName> {
         @Override
         public Map<FqName, Void> map(@NotNull FileContent inputData) {
             try {
-                KotlinJvmBinaryClass kotlinClass = KotlinBinaryClassCache.getKotlinBinaryClass(inputData.getFile());
-                if (kotlinClass != null && kotlinClass.getClassHeader().getIsCompatibleAbiVersion()) {
-                    return Collections.singletonMap(kotlinClass.getClassId().asSingleFqName(), null);
+                VirtualFile file = inputData.getFile();
+                if (file.getFileType() == JavaClassFileType.INSTANCE) {
+                    KotlinJvmBinaryClass kotlinClass = KotlinBinaryClassCache.getKotlinBinaryClass(inputData.getFile());
+                    if (kotlinClass != null && kotlinClass.getClassHeader().getIsCompatibleAbiVersion()) {
+                        return Collections.singletonMap(kotlinClass.getClassId().asSingleFqName(), null);
+                    }
+                }
+                else if (file.getFileType() == KotlinJavascriptMetaFileType.INSTANCE) {
+                    String relPath = JsMetaFileUtils.getRelativeToRootPath(file);
+                    FqName fqName = JsMetaFileUtils.getClassFqName(relPath);
+                    return Collections.singletonMap(fqName, null);
                 }
             }
             catch (Throwable e) {
