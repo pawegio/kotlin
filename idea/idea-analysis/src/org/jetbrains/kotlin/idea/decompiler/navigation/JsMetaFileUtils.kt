@@ -26,6 +26,7 @@ import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.ProjectRootModificationTracker
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
@@ -37,7 +38,10 @@ import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.idea.caches.resolve.LIBRARY_NAME_PREFIX
 import org.jetbrains.kotlin.idea.framework.JsHeaderLibraryDetectionUtil
 import org.jetbrains.kotlin.idea.project.ProjectStructureUtil
+import org.jetbrains.kotlin.load.kotlin.PackageClassUtils
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import kotlin.platform.platformStatic
 
@@ -92,6 +96,60 @@ private fun getLibraryName(module: ModuleDescriptor): String? {
     return moduleName.substring(LIBRARY_NAME_PREFIX.length())
 }
 
+public object JsMetaFileUtils {
+    platformStatic
+    public fun getRelativeToRootPath(file: VirtualFile): String {
+        val root = getRoot(file)
+        return VfsUtilCore.getRelativePath(file, root)!!
+    }
+
+    platformStatic
+    public fun getClassFqName(relPath: String): FqName {
+        val index = relPath.indexOf(VfsUtilCore.VFS_SEPARATOR_CHAR)
+        val pathToFile = relPath.substring(index+1)
+
+        val index1 = pathToFile.lastIndexOf('.')
+        val name = if (index1 >= 0) pathToFile.substring(0, index1) else pathToFile
+        return FqName(name.replace('/', '.'))
+    }
+
+    platformStatic
+    public fun getClassId(relPath: String): ClassId {
+        val classFqName = getClassFqName(relPath)
+        val shortName = classFqName.shortName().asString()
+        val index1 = shortName.lastIndexOf('.')
+        val name = if (index1 >= 0) shortName.substring(0, index1) else shortName
+        val packageFqName = getPackageFqName(relPath)
+        return ClassId(packageFqName, FqName(name), false)
+    }
+
+    platformStatic
+    public fun getPackageFqName(relPath: String): FqName {
+        val index = relPath.indexOf(VfsUtilCore.VFS_SEPARATOR_CHAR)
+        val pathToFile = relPath.substring(index+1)
+        if (pathToFile == "_DefaultPackage.meta") return FqName.ROOT
+
+        val index1 = pathToFile.lastIndexOf('/')
+        val name = if (index1 >= 0) pathToFile.substring(0, index1) else pathToFile
+        return FqName(name.replace('/', '.'))
+    }
+
+    platformStatic
+    public fun isPackageHeader(relPath: String): Boolean {
+        val classFqName = JsMetaFileUtils.getClassFqName(relPath)
+        return PackageClassUtils.isPackageClassFqName(classFqName)
+    }
+
+    platformStatic
+    public fun getModuleName(relPath: String): String {
+        val index = relPath.indexOf(VfsUtilCore.VFS_SEPARATOR_CHAR)
+        return relPath.substring(0, index)
+    }
+
+    private fun getRoot(file: VirtualFile): VirtualFile {
+        if (file.getParent() == null) return file else return getRoot(file.getParent())
+    }
+}
 
 class JsMetaFileVirtualFileHolder private(val myProject: Project) {
     companion object {
