@@ -297,7 +297,7 @@
         <property name="compiled.stdlib.meta.js" value="stdlib.meta.js"/>
         <property name="stdlib.js.dir" value="${basedir}/js/js.translator/testData"/>
 
-        <new-kotlin2js output="${output}/${compiled.builtins.js}" meta-info="${output}/${compiled.builtins.meta.js}">
+        <new-kotlin2js output="${output}/metainfo/${compiled.builtins.js}" meta-info="${output}/metainfo/${compiled.builtins.meta.js}">
             <src>
                 <fileset refid="kotlin.builtin.files"/>
             </src>
@@ -332,7 +332,7 @@
                 <file name="long.js"/>
             </sources>
 
-            <sources dir="${output}">
+            <sources dir="${output}/metainfo">
                 <file name="${compiled.builtins.js}"/>
             </sources>
 
