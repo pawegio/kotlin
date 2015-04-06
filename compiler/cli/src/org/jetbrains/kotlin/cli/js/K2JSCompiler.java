@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.js.facade.K2JSTranslator;
 import org.jetbrains.kotlin.js.facade.MainCallParameters;
 import org.jetbrains.kotlin.js.facade.TranslationResult;
 import org.jetbrains.kotlin.psi.JetFile;
+import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil;
 import org.jetbrains.kotlin.utils.PathUtil;
 
 import java.io.File;
@@ -190,6 +191,10 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
             outputDir = outputFile.getAbsoluteFile().getParentFile();
         }
         OutputUtilsPackage.writeAll(outputFiles, outputDir, messageCollector);
+
+        if (arguments.metaInfo != null) {
+            KotlinJavascriptSerializationUtil.writeMetadataFiles(config.getModuleId(), analysisResult.getModuleDescriptor(), outputDir);
+        }
 
         return OK;
     }
