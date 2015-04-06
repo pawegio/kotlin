@@ -18,26 +18,19 @@ package org.jetbrains.kotlin.idea.decompiler.textBuilder
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
-import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.idea.decompiler.navigation.JsMetaFileUtils
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.kotlin.KotlinBinaryClassCache
 import org.jetbrains.kotlin.load.kotlin.header.isCompatibleClassKind
 import org.jetbrains.kotlin.load.kotlin.header.isCompatiblePackageFacadeKind
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.renderer.DescriptorRendererBuilder
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils.isEnumEntry
-import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.resolve.dataClassUtils.isComponentLike
 import org.jetbrains.kotlin.resolve.descriptorUtil.secondaryConstructors
-import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil
 import org.jetbrains.kotlin.types.error.MissingDependencyErrorClass
 import org.jetbrains.kotlin.types.flexibility
 import org.jetbrains.kotlin.types.isFlexible
@@ -86,23 +79,6 @@ public fun buildDecompiledTextFromJsMetadata(
         resolver: ResolverForDecompiler = DeserializerForDecompilerJS(classFile)
 ): DecompiledText {
     val relPath = JsMetaFileUtils.getRelativeToRootPath(classFile)
-    val moduleName = JsMetaFileUtils.getModuleName(relPath)
-    // TODO check for builtins instead of this hack
-    if (moduleName == "kotlin") {
-        val s = relPath.substring(7)
-        val className = s.substring(0, s.length() - ".meta".length())
-        val m = KotlinBuiltIns.getInstance().getBuiltInsModule()
-        val fragments = m.getPackageFragmentProvider().getPackageFragments(FqName("kotlin"))
-        val allDescriptors = fragments.flatMap { it.getMemberScope().getAllDescriptors() }
-        if (className == "kotlinPackage") {
-            return buildDecompiledText(FqName("kotlin"), allDescriptors.filter { it is CallableDescriptor })
-        }
-        else {
-            val classFqName = FqName("kotlin." + className)
-            val descriptors = allDescriptors.filter { it is ClassDescriptor && getFqName(it) == classFqName }
-            return buildDecompiledText(FqName("kotlin"), descriptors)
-        }
-    }
     val packageFqName = JsMetaFileUtils.getPackageFqName(relPath)
     val isPackageHeader = JsMetaFileUtils.isPackageHeader(relPath)
 
