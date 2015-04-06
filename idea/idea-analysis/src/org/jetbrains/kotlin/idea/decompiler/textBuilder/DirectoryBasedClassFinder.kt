@@ -16,8 +16,10 @@
 
 package org.jetbrains.kotlin.idea.decompiler.textBuilder
 
+import com.google.protobuf.ExtensionRegistryLite
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.kotlin.builtins.BuiltInsSerializationUtil
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.idea.decompiler.isKotlinWithCompatibleAbiVersion
@@ -28,9 +30,14 @@ import org.jetbrains.kotlin.load.kotlin.KotlinJvmBinaryClass
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.serialization.ClassData
+import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.deserialization.ClassDataFinder
 import org.jetbrains.kotlin.serialization.deserialization.LocalClassResolver
+import org.jetbrains.kotlin.serialization.deserialization.NameResolver
+import org.jetbrains.kotlin.serialization.js.JsProtoBuf
+import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil
 import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil
+import java.io.ByteArrayInputStream
 
 class DirectoryBasedClassFinder(
         val packageDirectory: VirtualFile,
@@ -51,6 +58,22 @@ class DirectoryBasedClassFinder(
     }
 }
 
+class DirectoryBasedClassFinderJS(
+        val packageDirectory: VirtualFile,
+        val directoryPackageFqName: FqName,
+        val nameResolver: NameResolver
+)  {
+    //override fun findKotlinClass(javaClass: JavaClass) = findKotlinClass(javaClass.classId)
+
+    fun findKotlinJavascriptMetaInfo(classId: ClassId): VirtualFile? {
+        if (classId.getPackageFqName() != directoryPackageFqName) {
+            return null
+        }
+        val targetName = classId.getRelativeClassName().pathSegments().joinToString("$", postfix = ".meta")
+        return packageDirectory.findChild(targetName)
+    }
+}
+
 class DirectoryBasedDataFinder(
         val classFinder: DirectoryBasedClassFinder,
         val log: Logger
@@ -65,6 +88,28 @@ class DirectoryBasedDataFinder(
         return JvmProtoBufUtil.readClassDataFrom(data)
     }
 }
+
+class DirectoryBasedDataFinderJS(
+        val classFinder: DirectoryBasedClassFinderJS,
+        val log: Logger
+) : ClassDataFinder {
+    override fun findClassData(classId: ClassId): ClassData? {
+        val file = classFinder.findKotlinJavascriptMetaInfo(classId) ?: return null
+        if (file == null) {
+            log.error("Annotation data missing for ${classId}")
+            return null
+        }
+        val bytes = file.contentsToByteArray(false)
+        val nameResolver = classFinder.nameResolver
+
+        val registry = ExtensionRegistryLite.newInstance()
+        JsProtoBuf.registerAllExtensions(registry)
+        val classProto = ProtoBuf.Class.parseFrom(ByteArrayInputStream(bytes), registry)
+
+        return ClassData(nameResolver, classProto)
+    }
+}
+
 
 object ResolveEverythingToKotlinAnyLocalClassResolver : LocalClassResolver {
     override fun resolveLocalClass(classId: ClassId): ClassDescriptor = KotlinBuiltIns.getInstance().getAny()
