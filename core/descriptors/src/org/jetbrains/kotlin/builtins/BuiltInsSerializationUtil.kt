@@ -20,9 +20,9 @@ import org.jetbrains.kotlin.name.*
 import kotlin.platform.platformStatic
 
 public object BuiltInsSerializationUtil {
-    private val CLASS_METADATA_FILE_EXTENSION = "kotlin_class"
-    private val PACKAGE_FILE_NAME = ".kotlin_package"
-    private val STRING_TABLE_FILE_NAME = ".kotlin_string_table"
+    public val CLASS_METADATA_FILE_EXTENSION: String = "kotlin_class"
+    public val PACKAGE_FILE_NAME: String = ".kotlin_package"
+    public val STRING_TABLE_FILE_NAME: String = ".kotlin_string_table"
     private val CLASS_NAMES_FILE_NAME = ".kotlin_class_names"
 
     platformStatic public fun getClassMetadataPath(classId: ClassId): String {
