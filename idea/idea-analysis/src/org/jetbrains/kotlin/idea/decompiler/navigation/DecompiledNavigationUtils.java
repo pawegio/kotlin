@@ -17,16 +17,19 @@
 package org.jetbrains.kotlin.idea.decompiler.navigation;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.*;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.idea.caches.resolve.JsProjectDetector;
+import org.jetbrains.kotlin.descriptors.ClassDescriptor;
+import org.jetbrains.kotlin.descriptors.ClassOrPackageFragmentDescriptor;
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
+import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor;
 import org.jetbrains.kotlin.idea.decompiler.DecompilerPackage;
 import org.jetbrains.kotlin.idea.decompiler.KotlinClsFileBase;
+import org.jetbrains.kotlin.idea.decompiler.KotlinJavascriptMetaFileType;
 import org.jetbrains.kotlin.idea.stubindex.JetSourceFilterScope;
 import org.jetbrains.kotlin.load.kotlin.PackageClassUtils;
 import org.jetbrains.kotlin.load.kotlin.VirtualFileFinder;
@@ -46,19 +49,11 @@ public final class DecompiledNavigationUtils {
             @NotNull Project project,
             @NotNull DeclarationDescriptor referencedDescriptor
     ) {
-        VirtualFile virtualFile;
+        VirtualFile virtualFile = findVirtualFileContainingDescriptor(project, referencedDescriptor);
 
-        if (JsProjectDetector.isJsProject(project) &&
-            NavigationPackage.getKotlinJavascriptLibraryWithMetadata(referencedDescriptor, project) != null)
-        {
-            JsMetaFileVirtualFileHolder system = JsMetaFileVirtualFileHolder.getInstance(project);
-            virtualFile = system.getFile(referencedDescriptor);
-            if (virtualFile == null) return null;
-        }
-        else {
-            virtualFile = findVirtualFileContainingDescriptor(project, referencedDescriptor);
-            if (virtualFile == null || !DecompilerPackage.isKotlinCompiledFile(virtualFile)) return null;
-        }
+        if (virtualFile == null ||
+            !DecompilerPackage.isKotlinCompiledFile(virtualFile) &&
+            virtualFile.getFileType() != KotlinJavascriptMetaFileType.INSTANCE) return null;
 
         PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
         if (!(psiFile instanceof KotlinClsFileBase)) {
