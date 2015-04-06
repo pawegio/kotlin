@@ -178,7 +178,7 @@ public class LazyJavaClassMemberScope(
         if (methodNamedValue != null) {
             val parameterNamedValueJavaType = methodNamedValue.getAnnotationMethodReturnJavaType()
             val (parameterType, varargType) =
-                    if (parameterNamedValueJavaType is JavaArrayType && otherMethods.all { it.hasAnnotationParameterDefaultValue() })
+                    if (parameterNamedValueJavaType is JavaArrayType)
                         Pair(c.typeResolver.transformArrayType(parameterNamedValueJavaType, attr, isVararg = true),
                              c.typeResolver.transformJavaType(parameterNamedValueJavaType.getComponentType(), attr))
                     else
