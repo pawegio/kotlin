@@ -67,6 +67,7 @@ public open class KotlinJavascriptStubBuilder : ClsStubBuilder() {
     throws(javaClass<ClsFormatException>())
     fun doBuildFileStub(file: VirtualFile, project: Project): PsiFileStub<JetFile>? {
 
+        // TODO remove this temporarily hack
         val decompiledTextObj = buildDecompiledTextFromJsMetadata(file)
         val fileWithDecompiledText = psi.JetPsiFactory(project).createFile(decompiledTextObj.text)
         val stubTreeFromDecompiledText = JetFileStubBuilder().buildStubTree(fileWithDecompiledText)
