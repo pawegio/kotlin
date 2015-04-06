@@ -21,20 +21,11 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.compiled.ClassFileDecompilers;
 import com.intellij.psi.compiled.ClsStubBuilder;
-import com.intellij.psi.stubs.PsiFileStub;
-import com.intellij.util.indexing.FileContent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.idea.decompiler.stubBuilder.KotlinClsStubBuilder;
+import org.jetbrains.kotlin.idea.decompiler.stubBuilder.KotlinJavascriptStubBuilder;
 
 public class KotlinJavascriptMetaFileDecompiler extends ClassFileDecompilers.Full {
-    private final ClsStubBuilder stubBuilder = new KotlinClsStubBuilder() {
-        @Nullable
-        @Override
-        public PsiFileStub<?> buildFileStub(@NotNull FileContent fileContent) {
-            return null;
-        }
-    };
+    private final ClsStubBuilder stubBuilder = new KotlinJavascriptStubBuilder();
 
     @Override
     public boolean accepts(@NotNull VirtualFile file) {
