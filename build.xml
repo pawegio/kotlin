@@ -303,6 +303,8 @@
             </src>
         </new-kotlin2js>
 
+        <copy file="${output}/metainfo/${compiled.builtins.js}" todir="${output}"/>
+
         <new-kotlin2js output="${output}/${compiled.stdlib.js}" meta-info="${output}/${compiled.stdlib.meta.js}">
             <src>
                 <resources refid="js.lib.files"/>
@@ -332,7 +334,7 @@
                 <file name="long.js"/>
             </sources>
 
-            <sources dir="${output}/metainfo">
+            <sources dir="${output}">
                 <file name="${compiled.builtins.js}"/>
             </sources>
 
