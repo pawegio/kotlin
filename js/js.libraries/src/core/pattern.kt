@@ -16,20 +16,45 @@
 
 package kotlin.js
 
-public class Pattern private(private val regex: String) { // TODO: Flags
 
-    public fun pattern(): String = regex
-    override public fun toString(): String = regex
+native public class RegExp(pattern: String, flags: String? = null) {
 
-    public fun matcher(input: String): Matcher = Matcher(this, input)
+    public fun test(str: String): Boolean = noImpl
 
-    companion object {
+    public fun exec(str: String): Array<String>? = noImpl
 
-        public fun compile(regex: String): Pattern = Pattern(regex)
+    public override fun toString(): String = noImpl
 
-    }
+    /**
+     * The lastIndex is a read/write integer property of regular expressions that specifies the index at which to start the next match.
+     */
+    public var lastIndex: Int
+
+    public val global: Boolean get() = noImpl
+    public val ignoreCase: Boolean get() = noImpl
+    public val multiline: Boolean get() = noImpl
 }
 
-public class Matcher(val pattern: Pattern, val input: String) {
 
+native public trait RegExpMatch {
+    public val index: Int
+    public val input: String
 }
+
+//public class Pattern private(private val regex: String) { // TODO: Flags
+//
+//    public fun pattern(): String = regex
+//    override public fun toString(): String = regex
+//
+//    public fun matcher(input: String): Matcher = Matcher(this, input)
+//
+//    companion object {
+//
+//        public fun compile(regex: String): Pattern = Pattern(regex)
+//
+//    }
+//}
+//
+//public class Matcher(val pattern: Pattern, val input: String) {
+//
+//}
