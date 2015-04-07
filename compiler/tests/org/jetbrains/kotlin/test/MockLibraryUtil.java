@@ -99,6 +99,36 @@ public class MockLibraryUtil {
         }
     }
 
+    @NotNull
+    public static File compileJsLibraryToJar(
+            @NotNull String sourcesPath,
+            @NotNull String jarName,
+            boolean addSources
+    ) {
+        try {
+            File contentDir = JetTestUtils.tmpDir("testLibrary-" + jarName);
+
+            File outDir = new File(contentDir, "out");
+            File outputFile = new File(outDir, jarName + ".js");
+            File outputMetaFile = new File(outDir, jarName + ".meta.js");
+            compileKotlin2JS(sourcesPath, outputFile, outputMetaFile);
+
+            File jarFile = new File(contentDir, jarName + ".jar");
+
+            ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(jarFile));
+            ZipUtil.addDirToZipRecursively(zip, jarFile, outDir, "", null, null);
+            if (addSources) {
+                ZipUtil.addDirToZipRecursively(zip, jarFile, new File(sourcesPath), "src", null, null);
+            }
+            zip.close();
+
+            return jarFile;
+        }
+        catch (IOException e) {
+            throw UtilsPackage.rethrow(e);
+        }
+    }
+
     // Runs compiler in custom class loader to avoid effects caused by replacing Application with another one created in compiler.
     private static void runCompiler(@NotNull List<String> args) {
         try {
@@ -148,10 +178,10 @@ public class MockLibraryUtil {
         runCompiler(args);
     }
 
-    public static void compileKotlin2JS(@NotNull String sourcesPath, @NotNull File outputFile, @Nullable File metaFile, @NotNull String... extraClasspath) {
+    public static void compileKotlin2JS(@NotNull String sourcesPath, @NotNull File outputFile, @Nullable File metaFile) {
         List<String> args = new ArrayList<String>();
         if (metaFile != null) {
-            args.add("-meta");
+            args.add("-meta-info");
             args.add(metaFile.getAbsolutePath());
         }
 
