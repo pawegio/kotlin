@@ -126,6 +126,12 @@ public class AndroidBytecodeShapeTestGenerated extends AbstractAndroidBytecodeSh
         doTest(fileName);
     }
 
+    @TestMetadata("simpleFragmentProperty")
+    public void testSimpleFragmentProperty() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("plugins/android-compiler-plugin/testData/codegen/bytecodeShape/simpleFragmentProperty/");
+        doTest(fileName);
+    }
+
     @TestMetadata("simpleView")
     public void testSimpleView() throws Exception {
         String fileName = JetTestUtils.navigationMetadata("plugins/android-compiler-plugin/testData/codegen/bytecodeShape/simpleView/");
@@ -141,6 +147,12 @@ public class AndroidBytecodeShapeTestGenerated extends AbstractAndroidBytecodeSh
     @TestMetadata("supportSimpleFragment")
     public void testSupportSimpleFragment() throws Exception {
         String fileName = JetTestUtils.navigationMetadata("plugins/android-compiler-plugin/testData/codegen/bytecodeShape/supportSimpleFragment/");
+        doTest(fileName);
+    }
+
+    @TestMetadata("supportSimpleFragmentProperty")
+    public void testSupportSimpleFragmentProperty() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("plugins/android-compiler-plugin/testData/codegen/bytecodeShape/supportSimpleFragmentProperty/");
         doTest(fileName);
     }
 }
