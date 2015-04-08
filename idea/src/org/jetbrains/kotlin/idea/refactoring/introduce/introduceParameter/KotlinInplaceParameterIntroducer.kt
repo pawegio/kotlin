@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.idea.refactoring.introduce.introduceVariable.KotlinI
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
 import org.jetbrains.kotlin.idea.util.application.executeCommand
 import org.jetbrains.kotlin.idea.util.application.runWriteAction
+import org.jetbrains.kotlin.idea.util.supertypes
 import org.jetbrains.kotlin.psi.JetExpression
 import org.jetbrains.kotlin.psi.JetParameter
 import org.jetbrains.kotlin.psi.JetPsiFactory
@@ -172,6 +173,8 @@ public class KotlinInplaceParameterIntroducer(
         revalidate()
     }
 
+    override fun getAdvertisementActionId() = "IntroduceParameter"
+
     override fun initPanelControls() {
         addPanelControl {
             val previewer = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""),
@@ -291,5 +294,13 @@ public class KotlinInplaceParameterIntroducer(
             EditorFactory.getInstance().releaseEditor(it)
             previewer = null
         }
+    }
+
+    fun switchToDialogUI() {
+        stopIntroduce()
+        KotlinIntroduceParameterDialog(myProject,
+                                       originalDescriptor,
+                                       myNameSuggestions.copyToArray(),
+                                       originalDescriptor.parameterType.supertypes(true).toList()).show()
     }
 }

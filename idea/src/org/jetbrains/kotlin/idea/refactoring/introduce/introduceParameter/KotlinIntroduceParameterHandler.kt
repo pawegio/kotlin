@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.idea.refactoring.JetNameValidatorImpl
 import org.jetbrains.kotlin.idea.refactoring.JetRefactoringBundle
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.*
 import org.jetbrains.kotlin.idea.refactoring.introduce.KotlinIntroduceHandlerBase
+import org.jetbrains.kotlin.idea.refactoring.introduce.introduceVariable.KotlinInplaceVariableIntroducer
 import org.jetbrains.kotlin.idea.refactoring.introduce.selectElementsWithTargetParent
 import org.jetbrains.kotlin.idea.refactoring.introduce.showErrorHintByKey
 import org.jetbrains.kotlin.idea.search.usagesSearch.DefaultSearchHelper
@@ -265,6 +266,11 @@ public open class KotlinIntroduceParameterHandler: KotlinIntroduceHandlerBase() 
     }
 
     override fun invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext?) {
+        (KotlinInplaceVariableIntroducer.getActiveInstance(editor) as? KotlinInplaceParameterIntroducer)?.let {
+            it.switchToDialogUI()
+            return
+        }
+
         if (file !is JetFile) return
         selectElementsWithTargetParent(
                 operationName = INTRODUCE_PARAMETER,
