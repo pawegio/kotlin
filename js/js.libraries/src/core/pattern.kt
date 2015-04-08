@@ -28,10 +28,10 @@ public enum class PatternOption(val value: String) {
 public data class MatchGroup(val value: String)
 
 
-public class Pattern(public val pattern: String, options_: Set<PatternOption>) {
+public class Pattern (pattern: String, options: Set<PatternOption>) {
 
-
-    public val options: Set<PatternOption> = options_.toSet()
+    public val pattern: String = pattern
+    public val options: Set<PatternOption> = options.toSet()
     private val nativePattern: RegExp = RegExp(pattern, options.map { it.value }.joinToString() + "g")
 
 
