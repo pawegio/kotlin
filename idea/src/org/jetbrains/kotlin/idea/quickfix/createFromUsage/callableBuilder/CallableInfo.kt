@@ -87,10 +87,9 @@ abstract class TypeInfo(val variance: Variance) {
 
     protected fun JetType?.getPossibleSupertypes(variance: Variance): List<JetType> {
         if (this == null || ErrorUtils.containsErrorType(this)) return Collections.singletonList(KotlinBuiltIns.getInstance().getAnyType())
-        val single = Collections.singletonList(this)
         return when (variance) {
-            Variance.IN_VARIANCE -> single + supertypes()
-            else -> single
+            Variance.IN_VARIANCE -> supertypes(true).toList()
+            else -> Collections.singletonList(this)
         }
     }
 }

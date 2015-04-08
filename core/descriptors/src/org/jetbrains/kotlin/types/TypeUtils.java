@@ -444,12 +444,20 @@ public class TypeUtils {
 
 
     @NotNull
-    public static Set<JetType> getAllSupertypes(@NotNull JetType type) {
+    public static Set<JetType> getAllSupertypes(@NotNull JetType type, boolean withItself) {
         // 15 is obtained by experimentation: JDK classes like ArrayList tend to have so many supertypes,
         // the average number is lower
         Set<JetType> result = new LinkedHashSet<JetType>(15);
+        if (withItself) {
+            result.add(type);
+        }
         collectAllSupertypes(type, result);
         return result;
+    }
+
+    @NotNull
+    public static Set<JetType> getAllSupertypes(@NotNull JetType type) {
+        return getAllSupertypes(type, false);
     }
 
     public static boolean hasNullableLowerBound(@NotNull TypeParameterDescriptor typeParameterDescriptor) {

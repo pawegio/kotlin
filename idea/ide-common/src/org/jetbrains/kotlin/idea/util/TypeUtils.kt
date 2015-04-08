@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.types.typeUtil.substitute
 fun JetType.makeNullable() = TypeUtils.makeNullable(this)
 fun JetType.makeNotNullable() = TypeUtils.makeNotNullable(this)
 
-fun JetType.supertypes(): Set<JetType> = TypeUtils.getAllSupertypes(this)
+fun JetType.supertypes(withItself: Boolean = false): Set<JetType> = TypeUtils.getAllSupertypes(this, withItself)
 
 fun JetType.isUnit(): Boolean = KotlinBuiltIns.isUnit(this)
 fun JetType.isAny(): Boolean = KotlinBuiltIns.isAnyOrNullableAny(this)
