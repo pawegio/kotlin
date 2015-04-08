@@ -14,47 +14,88 @@
  * limitations under the License.
  */
 
-package kotlin.js
+package kotlin.text
 
 
-native public class RegExp(pattern: String, flags: String? = null) {
-
-    public fun test(str: String): Boolean = noImpl
-
-    public fun exec(str: String): Array<String>? = noImpl
-
-    public override fun toString(): String = noImpl
-
-    /**
-     * The lastIndex is a read/write integer property of regular expressions that specifies the index at which to start the next match.
-     */
-    public var lastIndex: Int
-
-    public val global: Boolean get() = noImpl
-    public val ignoreCase: Boolean get() = noImpl
-    public val multiline: Boolean get() = noImpl
+public enum class PatternOption(val value: String) {
+    IGNORE_CASE : PatternOption("i")
+    MULTILINE : PatternOption("m")
 }
 
 
-native public trait RegExpMatch {
-    public val index: Int
-    public val input: String
+public data class MatchGroup(val value: String)
+
+public trait MatchGroupCollection : Collection<MatchGroup?> {
+    public fun get(index: Int): MatchGroup?
 }
 
-//public class Pattern private(private val regex: String) { // TODO: Flags
-//
-//    public fun pattern(): String = regex
-//    override public fun toString(): String = regex
-//
-//    public fun matcher(input: String): Matcher = Matcher(this, input)
-//
-//    companion object {
-//
-//        public fun compile(regex: String): Pattern = Pattern(regex)
-//
-//    }
-//}
-//
-//public class Matcher(val pattern: Pattern, val input: String) {
-//
-//}
+public trait MatchResult {
+    public val range: IntRange
+    public val value: String
+    public val groups: MatchGroupCollection
+
+    public fun next(): MatchResult?
+}
+
+
+public class Pattern(public val pattern: String, options_: Set<PatternOption>) {
+
+    public constructor(pattern: String, vararg options: PatternOption) : this(pattern, options.toSet())
+
+    public val options: Set<PatternOption> = options_.toSet()
+    private val nativePattern: RegExp = RegExp(pattern, options.map { it.value }.joinToString() + "g"
+
+
+    public fun matches(input: CharSequence): Boolean {
+        nativePattern.reset()
+        return nativePattern.test(input.toString())
+    }
+
+    public fun match(input: CharSequence): MatchResult? = nativePattern.findNext(input.toString(), 0)
+
+    public fun matchAll(input: CharSequence): Sequence<MatchResult> = sequence({ match(input) }, { match -> match.next() })
+
+    public fun replace(input: CharSequence, replacement: String): String = input.toString().nativeReplace(nativePattern, replacement)
+    public fun replace(input: CharSequence, evaluator: (MatchResult) -> String): String = TODO
+
+    public fun split(input: CharSequence, limit: Int = 0): List<String> = TODO
+
+    public fun toString(): String = nativePattern.toString()
+
+    companion object {
+        public fun fromLiteral(literal: String): Pattern = Pattern(escape(literal))
+        public fun escape(literal: String): String = TODO
+        public fun escapeReplacement(literal: String): String = literal.nativeReplace(RegExp("\\$", "g"), "$$$$")
+    }
+}
+
+
+private fun RegExp.findNext(input: String, from: Int): MatchResult? {
+    this.lastIndex = from
+    val match = exec(input)
+    if (match == null) return null
+    val reMatch = match as RegExpMatch
+    val range = reMatch.index..lastIndex-1
+
+    return object : MatchResult {
+        override val range: IntRange = range
+        override val value: String
+            get() = match[0]!!
+
+        override val groups: MatchGroupCollection by Delegates.lazy {
+            object : MatchGroupCollection {
+                override fun size(): Int = match.size()
+                override fun isEmpty(): Boolean = size() == 0
+
+                override fun contains(o: Any?): Boolean = this.any { it == o }
+                override fun containsAll(c: Collection<Any?>): Boolean = c.all({contains(it)})
+
+                override fun iterator(): Iterator<MatchGroup?> = indices.sequence().map { this[it] }.iterator()
+
+                override fun get(index: Int): MatchGroup? = match[index]?.let { MatchGroup(it) }
+            }
+        }
+
+        override fun next(): MatchResult? = this@findNext.findNext(input, range.end + 1)
+    }
+}

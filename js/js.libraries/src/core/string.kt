@@ -51,11 +51,14 @@ library
 public fun CharSequence.isEmpty(): Boolean = noImpl
 
 
-native public fun String.replace(oldChar: Char, newChar: Char): String = noImpl
 
 // native because we need to escape newValue
 native("replace")
 private fun String.nativeReplace(oldValue: String, newValue: String): String = noImpl
+
+native("replace")
+private fun String.nativeReplace(pattern: RegExp, replacement: String): String = noImpl
+
 
 /*
 
