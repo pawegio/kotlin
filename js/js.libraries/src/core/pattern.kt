@@ -43,7 +43,7 @@ public class Pattern(public val pattern: String, options_: Set<PatternOption>) {
     public constructor(pattern: String, vararg options: PatternOption) : this(pattern, options.toSet())
 
     public val options: Set<PatternOption> = options_.toSet()
-    private val nativePattern: RegExp = RegExp(pattern, options.map { it.value }.joinToString() + "g"
+    private val nativePattern: RegExp = RegExp(pattern, options.map { it.value }.joinToString() + "g")
 
 
     public fun matches(input: CharSequence): Boolean {
@@ -82,18 +82,16 @@ private fun RegExp.findNext(input: String, from: Int): MatchResult? {
         override val value: String
             get() = match[0]!!
 
-        override val groups: MatchGroupCollection by Delegates.lazy {
-            object : MatchGroupCollection {
-                override fun size(): Int = match.size()
-                override fun isEmpty(): Boolean = size() == 0
+        override val groups: MatchGroupCollection = object : MatchGroupCollection {
+            override fun size(): Int = match.size()
+            override fun isEmpty(): Boolean = size() == 0
 
-                override fun contains(o: Any?): Boolean = this.any { it == o }
-                override fun containsAll(c: Collection<Any?>): Boolean = c.all({contains(it)})
+            override fun contains(o: Any?): Boolean = this.any { it == o }
+            override fun containsAll(c: Collection<Any?>): Boolean = c.all({contains(it)})
 
-                override fun iterator(): Iterator<MatchGroup?> = indices.sequence().map { this[it] }.iterator()
+            override fun iterator(): Iterator<MatchGroup?> = indices.sequence().map { this[it] }.iterator()
 
-                override fun get(index: Int): MatchGroup? = match[index]?.let { MatchGroup(it) }
-            }
+            override fun get(index: Int): MatchGroup? = match[index]?.let { MatchGroup(it) }
         }
 
         override fun next(): MatchResult? = this@findNext.findNext(input, range.end + 1)

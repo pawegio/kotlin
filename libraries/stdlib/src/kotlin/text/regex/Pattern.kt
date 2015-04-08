@@ -120,24 +120,22 @@ private fun Matcher.findNext(from: Int): MatchResult? {
         override val value: String
             get() = matchResult.group()
 
-        override val groups: MatchGroupCollection by Delegates.lazy {
-            object : MatchGroupCollection {
-                override fun size(): Int = matchResult.groupCount() + 1
-                override fun isEmpty(): Boolean = size() == 0
-                override fun contains(o: Any?): Boolean = o is MatchGroup? && this.any({ it == o })
-                override fun containsAll(c: Collection<Any?>): Boolean = c.all({contains(it)})
+        override val groups: MatchGroupCollection = object : MatchGroupCollection {
+            override fun size(): Int = matchResult.groupCount() + 1
+            override fun isEmpty(): Boolean = false
+            override fun contains(o: Any?): Boolean = o is MatchGroup? && this.any({ it == o })
+            override fun containsAll(c: Collection<Any?>): Boolean = c.all({contains(it)})
 
-                override fun iterator(): Iterator<MatchGroup?> = indices.sequence().map { this[it] }.iterator()
-                override fun get(index: Int): MatchGroup? {
-                    val matchResult = matchResult
-                    val range = matchResult.range(index)
-                    return if (range.start >= 0)
-                        MatchGroup(matchResult.group(index), range)
-                    else
-                        null
-                }
+            override fun iterator(): Iterator<MatchGroup?> = indices.sequence().map { this[it] }.iterator()
+            override fun get(index: Int): MatchGroup? {
+                val range = matchResult.range(index)
+                return if (range.start >= 0)
+                    MatchGroup(matchResult.group(index), range)
+                else
+                    null
             }
         }
+
 
         override fun next(): MatchResult? {
             if (this@findNext === matchResult)
