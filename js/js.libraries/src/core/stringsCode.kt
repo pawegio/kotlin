@@ -80,8 +80,8 @@ public inline fun String.decapitalize(): String {
 }
 
 
-public fun String.replace(oldValue: String, newValue: String): String =
-        nativeReplace(RegExp(kotlin.text.Regex.escape(oldValue),"g"), kotlin.text.Regex.escapeReplacement(newValue))
+public fun String.replace(oldValue: String, newValue: String, ignoreCase: Boolean = false): String =
+        nativeReplace(RegExp(kotlin.text.Regex.escape(oldValue), if (ignoreCase) "gi" else "g"), kotlin.text.Regex.escapeReplacement(newValue))
 
-public fun String.replace(oldChar: Char, newChar: Char): String =
-        nativeReplace(RegExp(kotlin.text.Regex.escape(oldChar.toString()),"g"), newChar.toString())
+public fun String.replace(oldChar: Char, newChar: Char, ignoreCase: Boolean = false): String =
+        nativeReplace(RegExp(kotlin.text.Regex.escape(oldChar.toString()), if (ignoreCase) "gi" else "g"), newChar.toString())
