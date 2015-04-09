@@ -28,20 +28,49 @@ public fun Iterable<FlagEnum>.toInt(): Int =
 public fun <T: FlagEnum> fromInt(value: Int, allValues: Array<T>): Set<T> =
         allValues.filter({ value and it.mask == it.value }).toSet()
 
-
+/**
+ * Provides enumeration values to use to set regular expression options.
+ */
 public enum class RegexOption(override val value: Int, override val mask: Int = value) : FlagEnum {
     // common
+    /** Enables case-insensitive matching. */
     IGNORE_CASE : RegexOption(Pattern.CASE_INSENSITIVE)
+
+    /** Enables multiline mode.
+     *
+     * In multiline mode the expressions `^` and `$` match just after or just before,
+     * respectively, a line terminator or the end of the input sequence. */
     MULTILINE : RegexOption(Pattern.MULTILINE)
 
     //jvm-specific
+
+    /** Enables literal parsing of the pattern.
+     *
+     * Metacharacters or escape sequences in the input sequence will be given no special meaning.
+     */
     LITERAL : RegexOption(Pattern.LITERAL)
+
+    // TODO: Make unicode case enabled by default with the IGNORE_CASE
+    /** Enables Unicode-aware case folding. */
     UNICODE_CASE: RegexOption(Pattern.UNICODE_CASE)
-    UNIX_LINES: RegexOption(Pattern.UNIX_LINES)
+
+    /** Enables Unix lines mode.
+     * In this mode, only the `'\n'` is recognized as a line terminator.
+     */
+    UNIX_LINES: RegexOption(Pattern.UNIX_LINES) // TODO: Remove this
+
+    /** Permits whitespace and comments in pattern. */
     COMMENTS: RegexOption(Pattern.COMMENTS)
+
+    /** Enables the mode, when the expression `.` matches any character,
+     * including a line terminator.
+     */
     DOT_MATCHES_ALL: RegexOption(Pattern.DOTALL)
+
+    /** Enables equivalence by canonical decomposition. */
     CANON_EQ: RegexOption(Pattern.CANON_EQ)
 }
+
 
 public data class MatchGroup(val value: String, val range: IntRange)
 
@@ -102,6 +131,8 @@ public class Regex( /* visibility? */ val nativePattern: Pattern) {
     }
 
 }
+
+// implementation
 
 private fun Matcher.findNext(from: Int): MatchResult? {
     if (!find(from))
