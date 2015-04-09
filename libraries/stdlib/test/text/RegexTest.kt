@@ -28,6 +28,11 @@ class RegexTest {
         assertEquals(null, noMatch)
     }
 
+    test fun matchIgnoreCase() {
+        for (input in listOf("ascii")) // TODO: "shrödinger"
+            assertTrue(input.toUpperCase().matches(input.toLowerCase().toRegex(RegexOption.IGNORE_CASE)))
+    }
+
     test fun matchSequence() {
         val input = "123 456 789"
         val pattern = "\\d+".toRegex()
@@ -81,6 +86,8 @@ class RegexTest {
         val input = "123-456"
         val pattern = "(\\d+)".toRegex()
         assertEquals("(123)-(456)", pattern.replace(input, "($1)"))
+
+        assertEquals("$&-$&", pattern.replace(input, Regex.escapeReplacement("$&")))
 
     }
 
