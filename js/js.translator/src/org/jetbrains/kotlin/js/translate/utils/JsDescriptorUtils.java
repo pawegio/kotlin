@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ThisReceiver;
+import org.jetbrains.kotlin.serialization.js.KotlinJavascriptPackageFragment;
 import org.jetbrains.kotlin.types.JetType;
 import org.jetbrains.kotlin.types.expressions.OperatorConventions;
 
@@ -189,6 +190,11 @@ public final class JsDescriptorUtils {
     }
 
     private static String getModuleNameFromDescriptorName(DeclarationDescriptor descriptor) {
+        PackageFragmentDescriptor containingPackageFragment = DescriptorUtils.getParentOfType(descriptor, PackageFragmentDescriptor.class);
+        if (containingPackageFragment instanceof KotlinJavascriptPackageFragment) {
+            return ((KotlinJavascriptPackageFragment)containingPackageFragment).getRealModuleName();
+        }
+
         ModuleDescriptor moduleDescriptor = DescriptorUtils.getContainingModule(descriptor);
         String moduleName = moduleDescriptor.getName().asString();
         return moduleName.substring(1, moduleName.length() - 1);
