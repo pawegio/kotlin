@@ -64,6 +64,8 @@ public class Regex( /* visibility? */ val nativePattern: Pattern) {
 
     public fun replace(input: CharSequence, replacement: String): String = nativePattern.matcher(input).replaceAll(replacement)
 
+    public fun replaceFirst(input: CharSequence, replacement: String): String = nativePattern.matcher(input).replaceFirst(replacement)
+
     public inline fun replace(input: CharSequence, transform: (MatchResult) -> String): String {
         var match = match(input)
         if (match == null) return input.toString()

@@ -68,6 +68,9 @@ public class Regex(pattern: String, options: Set<RegexOption>) {
         return sb.toString()
     }
 
+    public fun replaceFirst(input: CharSequence, replacement: String): String =
+            input.toString().nativeReplace(RegExp(pattern, options.map { it.value }.joinToString()), replacement)
+
     public fun split(input: CharSequence, limit: Int = 0): List<String> {
         require(limit >= 0, { "Limit must be non-negative, but was $limit" } )
         val matches = matchAll(input).let { if (limit == 0) it else it.take(limit - 1) }
