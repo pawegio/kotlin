@@ -66,7 +66,7 @@ public object JsAnalyzerFacade : AnalyzerFacade<JsResolverForModule, PlatformAna
             if (!JsHeaderLibraryDetectionUtil.isJsHeaderLibraryWithSources(files.toList())) {
                 val providers = moduleInfo.library.getFiles(OrderRootType.CLASSES)
                         .flatMap { KotlinJavascriptMetadataUtils.loadMetadata(PathUtil.getLocalPath(it)!!) }
-                        .flatMap { KotlinJavascriptSerializationUtil.getPackageFragmentProviders(moduleDescriptor, it.body) }
+                        .flatMap { KotlinJavascriptSerializationUtil.getPackageFragmentProviders(moduleDescriptor, it) }
 
                 if (providers.isNotEmpty()) {
                     packageFragmentProvider = CompositePackageFragmentProvider(listOf(packageFragmentProvider) + providers)

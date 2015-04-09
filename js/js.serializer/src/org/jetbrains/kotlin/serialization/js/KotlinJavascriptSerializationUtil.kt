@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.serialization.SerializationUtil
 import org.jetbrains.kotlin.serialization.builtins.BuiltInsSerializerExtension
 import org.jetbrains.kotlin.serialization.deserialization.FlexibleTypeCapabilitiesDeserializer
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
+import org.jetbrains.kotlin.utils.KotlinJavascriptMetadata
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -44,8 +45,8 @@ public object KotlinJavascriptSerializationUtil {
     private val PACKAGE_FILE_SUFFIX = "/.kotlin_package"
 
     platformStatic
-    public fun getPackageFragmentProviders(moduleDescriptor: ModuleDescriptor, metadata: ByteArray): List<PackageFragmentProvider> {
-        val gzipInputStream = GZIPInputStream(ByteArrayInputStream(metadata))
+    public fun getPackageFragmentProviders(moduleDescriptor: ModuleDescriptor, metadata: KotlinJavascriptMetadata): List<PackageFragmentProvider> {
+        val gzipInputStream = GZIPInputStream(ByteArrayInputStream(metadata.body))
         val content = JsProtoBuf.Library.parseFrom(gzipInputStream)
         gzipInputStream.close()
 
@@ -62,7 +63,7 @@ public object KotlinJavascriptSerializationUtil {
         val providers = arrayListOf<PackageFragmentProvider>()
         for (packageName in packages) {
             val fqName = FqName(packageName)
-            val packageFragment = BuiltinsPackageFragment(fqName, LockBasedStorageManager(), moduleDescriptor, FlexibleTypeCapabilitiesDeserializer.Dynamic, load)
+            val packageFragment = KotlinJavascriptPackageFragment(fqName, LockBasedStorageManager(), moduleDescriptor, metadata.moduleName, load)
             providers.add(packageFragment.provider)
         }
 

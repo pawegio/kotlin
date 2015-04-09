@@ -146,7 +146,7 @@ public abstract class Config {
         ModuleDescriptorImpl moduleDescriptor = TopDownAnalyzerFacadeForJS.createJsModule("<" + metadata.getModuleName() + ">");
 
         List<PackageFragmentProvider> providers = KotlinJavascriptSerializationUtil
-                .getPackageFragmentProviders(moduleDescriptor, metadata.getBody());
+                .getPackageFragmentProviders(moduleDescriptor, metadata);
         CompositePackageFragmentProvider compositePackageFragmentProvider = new CompositePackageFragmentProvider(providers);
 
         moduleDescriptor.initialize(compositePackageFragmentProvider);

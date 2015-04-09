@@ -81,7 +81,7 @@ public class KotlinJavascriptSerializerTest : TestCaseWithTmpdir() {
         val metadata = KotlinJavascriptMetadataUtils.loadMetadata(metaFile)
         assert(metadata.size() == 1)
 
-        val provider = CompositePackageFragmentProvider(KotlinJavascriptSerializationUtil.getPackageFragmentProviders(module, metadata[0].body))
+        val provider = CompositePackageFragmentProvider(KotlinJavascriptSerializationUtil.getPackageFragmentProviders(module, metadata[0]))
 
         module.initialize(provider)
         module.addDependencyOnModule(module)

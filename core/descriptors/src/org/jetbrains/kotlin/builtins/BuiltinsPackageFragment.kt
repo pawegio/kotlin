@@ -32,7 +32,7 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
 import org.jetbrains.kotlin.storage.StorageManager
 import java.io.InputStream
 
-public class BuiltinsPackageFragment(
+public open class BuiltinsPackageFragment(
         fqName: FqName,
         storageManager: StorageManager,
         module: ModuleDescriptor,
