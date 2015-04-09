@@ -117,8 +117,9 @@ public abstract class Config {
         if (moduleDescriptors != null) return moduleDescriptors;
 
         moduleDescriptors = new SmartList<ModuleDescriptorImpl>();
-        for(KotlinJavascriptMetadata metadataEntry : metadata) {
-            moduleDescriptors.add(createModuleDescriptor(metadataEntry));
+
+        if (!metadata.isEmpty()) {
+            moduleDescriptors.add(createModuleDescriptor(metadata));
         }
 
         return moduleDescriptors;
@@ -142,11 +143,14 @@ public abstract class Config {
         initialized = true;
     }
 
-    private static ModuleDescriptorImpl createModuleDescriptor(KotlinJavascriptMetadata metadata) {
-        ModuleDescriptorImpl moduleDescriptor = TopDownAnalyzerFacadeForJS.createJsModule("<" + metadata.getModuleName() + ">");
+    private static ModuleDescriptorImpl createModuleDescriptor(List<KotlinJavascriptMetadata> metadata) {
+        ModuleDescriptorImpl moduleDescriptor = TopDownAnalyzerFacadeForJS.createJsModule("<module for included libraries>");
 
-        List<PackageFragmentProvider> providers = KotlinJavascriptSerializationUtil
-                .getPackageFragmentProviders(moduleDescriptor, metadata);
+        List<PackageFragmentProvider> providers = new SmartList<PackageFragmentProvider>();
+        for(KotlinJavascriptMetadata metadataEntry : metadata) {
+            providers.addAll(KotlinJavascriptSerializationUtil.getPackageFragmentProviders(moduleDescriptor, metadataEntry));
+        }
+
         CompositePackageFragmentProvider compositePackageFragmentProvider = new CompositePackageFragmentProvider(providers);
 
         moduleDescriptor.initialize(compositePackageFragmentProvider);
